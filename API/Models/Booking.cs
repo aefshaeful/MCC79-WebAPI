@@ -15,7 +15,7 @@ namespace API.Models
         [Column("status")]
         public int Status { get; set; }
 
-        [Column("remarks", TypeName = "nvarchar(max)")]
+        [Column("remarks", TypeName = "nvarchar(255)")]
         public string Remarks { get; set; }
 
         [Column("room_guid")]
