@@ -18,7 +18,9 @@ namespace API.Models
         [Column("university_guid")]
         public Guid UniversityGuid { get; set; }
 
+
         // Cardinality
         public University University { get; set; }
+        public Employee Employees { get; set; }
     }
 }
