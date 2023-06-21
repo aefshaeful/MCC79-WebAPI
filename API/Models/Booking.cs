@@ -3,12 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API.Models
 {
-    public class Booking
+    [Table("tb_tr_bookings")]
+    public class Booking : BaseEntity
     {
-        [Key]
-        [Column("guid")]
-        public Guid Guid { get; set; }
-
         [Column("start_date")]
         public DateTime StartDate { get; set; }
 
@@ -20,12 +17,6 @@ namespace API.Models
 
         [Column("remarks", TypeName = "nvarchar(max)")]
         public string Remarks { get; set; }
-
-        [Column("created_date")]
-        public DateTime CreatedDate { get; set; }
-
-        [Column("modified_date")]
-        public DateTime ModifiedDate { get; set;}
 
         [Column("room_guid")]
         public Guid RoomGuid { get; set; }
