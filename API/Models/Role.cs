@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API.Models
 {
-    [Table("tb_tr_roles")]
+    [Table("tb_m_roles")]
     public class Role : BaseEntity
     {
         [Column("name", TypeName = "nvarchar(100)")]
