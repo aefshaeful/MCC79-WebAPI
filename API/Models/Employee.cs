@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using API.Utilities.Enums;
 
 namespace API.Models
 {
@@ -19,7 +20,7 @@ namespace API.Models
         public DateTime BirthDate { get; set; }
 
         [Column("gender")]
-        public int Gender { get; set; }
+        public GenderEnum Gender { get; set; }
 
         [Column("hiring_date")]
         public DateTime Hiringdate { get; set; }
