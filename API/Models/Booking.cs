@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using API.Utilities.Enums;
 
 namespace API.Models
 {
@@ -13,7 +14,7 @@ namespace API.Models
         public DateTime EndDate { get; set; }
 
         [Column("status")]
-        public int Status { get; set; }
+        public GenderEnum Status { get; set; }
 
         [Column("remarks", TypeName = "nvarchar(255)")]
         public string Remarks { get; set; }
