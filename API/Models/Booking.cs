@@ -24,5 +24,11 @@ namespace API.Models
 
         [Column("employee_guid")]
         public Guid EmployeeGuid { get; set; }
+
+        
+        // Cardinality
+        public Employee Employees { get; set; }
+        public Room Rooms { get; set; }
+
     }
 }
