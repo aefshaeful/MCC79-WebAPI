@@ -3,19 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API.Models
 {
-    public class Role
+    [Table("tb_tr_roles")]
+    public class Role : BaseEntity
     {
-        [Key]
-        [Column("guid")]
-        public Guid Guid { get; set; }
-
         [Column("name", TypeName = "nvarchar(100)")]
         public string Name { get; set; }
-
-        [Column("created_date")]
-        public DateTime CreatedDate { get; set; }
-
-        [Column("modified_date")]
-        public DateTime ModifiedDate { get; set; }
     }
 }
