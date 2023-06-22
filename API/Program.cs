@@ -1,14 +1,20 @@
+using API.Contracts;
 using API.Data;
+using API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers();
 
+// Add DbContext
 var connectionString = builder.Configuration.GetConnectionString(name: "MyConnection");
 builder.Services.AddDbContext<BookingDbContext>(optionsAction:options => options.UseSqlServer(connectionString));
 
-builder.Services.AddControllers();
+// Add Repository to the container
+builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
