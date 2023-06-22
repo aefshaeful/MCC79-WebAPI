@@ -27,8 +27,8 @@ namespace API.Models
 
         
         // Cardinality
-        public Employee Employees { get; set; }
-        public Room Rooms { get; set; }
+        public Employee? Employees { get; set; }
+        public Room? Rooms { get; set; }
 
     }
 }
