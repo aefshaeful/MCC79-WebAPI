@@ -24,7 +24,7 @@ namespace API.Models
 
 
         // Cardinality
-        public Employee Employees { get; set; }
-        public ICollection<AccountRole> AccountRoles { get; set; }
+        public Employee? Employees { get; set; }
+        public ICollection<AccountRole>? AccountRoles { get; set; }
     }
 }
