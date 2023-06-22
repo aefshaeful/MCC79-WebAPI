@@ -13,7 +13,7 @@ namespace API.Models
         public Guid RoleGuid { get; set; }
 
         // Cardinality
-        public Account Accounts { get; set; }
-        public Role Roles { get; set; }
+        public Account? Accounts { get; set; }
+        public Role? Roles { get; set; }
     }
 }
