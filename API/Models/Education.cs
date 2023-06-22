@@ -20,7 +20,7 @@ namespace API.Models
 
 
         // Cardinality
-        public University University { get; set; }
-        public Employee Employees { get; set; }
+        public University? University { get; set; }
+        public Employee? Employees { get; set; }
     }
 }
