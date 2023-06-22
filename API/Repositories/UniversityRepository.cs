@@ -1,11 +1,11 @@
 ﻿using API.Data;
-//using API.Contracts;
+using API.Contracts;
 using API.Models;
 using System.Linq.Expressions;
 
 namespace API.Repositories
 {
-    public class UniversityRepository
+    public class UniversityRepository : IUniversityRepository
     {
         private readonly BookingDbContext context;
         public UniversityRepository(BookingDbContext Context)
