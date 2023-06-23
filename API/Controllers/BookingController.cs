@@ -15,6 +15,7 @@ namespace API.Controllers
             this.repository = Repository;
         }
 
+
         [HttpGet]
         public IActionResult GettAll()
         {
@@ -27,6 +28,7 @@ namespace API.Controllers
 
             return Ok(booking);
         }
+
 
         [HttpGet("{guid}")]
         public IActionResult GetByGuid(Guid guid)
@@ -41,12 +43,14 @@ namespace API.Controllers
             return Ok(booking);
         }
 
+
         [HttpPost]
         public IActionResult Create(Booking booking) 
         {
             var createdBooking = repository.Create(booking);
             return Ok(createdBooking);
         }
+
 
         [HttpPut]
         public IActionResult Update(Booking booking) 
@@ -60,6 +64,7 @@ namespace API.Controllers
 
             return Ok();
         }
+
 
         [HttpDelete]
         public IActionResult Delete(Guid guid)
