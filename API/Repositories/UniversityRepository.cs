@@ -61,6 +61,7 @@ namespace API.Repositories
             try
             {
                 var university = GetByGuid(guid);
+
                 if (university is null)
                 {
                     return false;
