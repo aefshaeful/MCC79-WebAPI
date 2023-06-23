@@ -56,6 +56,7 @@ namespace API.Repositories
             try
             {
                 var employee = GetByGuid(guid);
+
                 if (employee is null)
                 {
                     return false;
