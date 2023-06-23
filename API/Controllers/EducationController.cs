@@ -34,6 +34,7 @@ namespace API.Controllers
         public IActionResult GetByGuid(Guid guid)
         {
             var education = repository.GetByGuid(guid);
+
             if (education is null)
             {
                 return NotFound();
@@ -55,6 +56,7 @@ namespace API.Controllers
         public IActionResult Update(Education education)
         {
             var isUpdated = repository.Update(education);
+
             if (!isUpdated)
             {
                 return NotFound();
@@ -68,6 +70,7 @@ namespace API.Controllers
         public IActionResult Delete(Guid guid)
         {
             var isDeleted = repository.Delete(guid);
+
             if (!isDeleted)
             {
                 return NotFound();
