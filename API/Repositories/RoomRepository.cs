@@ -17,7 +17,7 @@ namespace API.Repositories
             return context.Set<Room>().ToList();
         }
 
-        public Room GetByGuid(Guid guid) 
+        public Room? GetByGuid(Guid guid) 
         {
             return context.Set<Room>().Find(guid);
         }
