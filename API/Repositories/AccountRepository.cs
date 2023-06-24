@@ -17,7 +17,7 @@ namespace API.Repositories
             return context.Set<Account>().ToList();
         }
 
-        public Account GetByGuid(Guid guid)
+        public Account? GetByGuid(Guid guid)
         {
             return context.Set<Account>().Find(guid);
         }
