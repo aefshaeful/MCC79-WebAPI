@@ -17,7 +17,7 @@ namespace API.Repositories
             return context.Set<Booking>().ToList();
         }
 
-        public Booking GetByGuid(Guid guid) 
+        public Booking? GetByGuid(Guid guid) 
         {
             return context.Set<Booking>().Find(guid);
         }
