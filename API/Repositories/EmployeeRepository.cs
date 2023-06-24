@@ -18,7 +18,7 @@ namespace API.Repositories
             return context.Set<Employee>().ToList();
         }
 
-        public Employee GetByGuid(Guid guid) 
+        public Employee? GetByGuid(Guid guid) 
         {
             return context.Set<Employee>().Find(guid);
         }
