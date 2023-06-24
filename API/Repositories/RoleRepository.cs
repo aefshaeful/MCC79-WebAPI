@@ -18,7 +18,7 @@ namespace API.Repositories
             return context.Set<Role>().ToList();
         }
 
-        public Role GetByGuid(Guid guid)
+        public Role? GetByGuid(Guid guid)
         {
             return context.Set<Role>().Find(guid);
         }
