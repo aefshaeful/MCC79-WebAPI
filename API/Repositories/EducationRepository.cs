@@ -20,7 +20,7 @@ namespace API.Repositories
         }
 
 
-        public Education GetByGuid(Guid guid) 
+        public Education? GetByGuid(Guid guid) 
         {
             return context.Set<Education>().Find(guid);
         }
