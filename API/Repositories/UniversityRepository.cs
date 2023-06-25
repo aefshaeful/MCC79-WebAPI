@@ -10,9 +10,9 @@ namespace API.Repositories
         public UniversityRepository(BookingDbContext Context) : base(Context) 
         { 
         }
-        public IEnumerable<University> GetByName(string name)
+        public IEnumerable<University> GetByName(string name)   // Method untuk mendapatkan universitas berdasarkan nama.
         {
-            return context.Set<University>().Where(university => university.Name.Contains(name));
+            return context.Set<University>().Where(university => university.Name.Contains(name));   // Melakukan query pada database.
         }
     }
 }
