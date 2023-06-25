@@ -41,6 +41,18 @@ namespace API.Controllers
         }
 
 
+        [HttpGet("{name}")]
+        public IActionResult GetByName(string name)
+        {
+            var entity = repository.GetByName(name);
+            if (entity is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(entity);
+        }
+
         [HttpPost]
         public IActionResult Create(TEntity entity)
         {
