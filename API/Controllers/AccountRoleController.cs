@@ -7,77 +7,8 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/accountrole")]
-    public class AccountRoleController : ControllerBase
+    public class AccountRoleController : GeneralController<AccountRole>
     {
-
-        private readonly IAccountRoleRepository repository;
-        public AccountRoleController(IAccountRoleRepository Repository)
-        {
-            this.repository = Repository;
-        }
-
-
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var accountrole = repository.GetAll();
-
-            if (!accountrole.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(accountrole);
-        }
-
-
-        [HttpGet("{guid}")]
-        public IActionResult GetByGuid(Guid guid)
-        {
-            var accountrole = repository.GetByGuid(guid);
-
-            if (accountrole is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(accountrole);
-        }
-
-
-        [HttpPost]
-        public IActionResult Create(AccountRole accountrole)
-        {
-            var createdAccountRole = repository.Create(accountrole);
-            return Ok(createdAccountRole);
-        }
-
-
-        [HttpPut]
-        public IActionResult Update(AccountRole accountrole)
-        {
-            var isUpdate = repository.Update(accountrole);
-
-            if (!isUpdate)
-            {
-                return NotFound();
-            }
-
-            return Ok();
-        }
-
-
-        [HttpDelete]
-        public IActionResult Delete(Guid guid)
-        {
-            var isDelete = repository.Delete(guid);
-
-            if (!isDelete)
-            {
-                return NotFound();
-            }
-
-            return Ok();
-        }
+        public AccountRoleController(IAccountRoleRepository Repository) : base(Repository) { }
     }
 }
