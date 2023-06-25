@@ -25,6 +25,11 @@ namespace API.Repositories
             return context.Set<TEntity>().Find(guid);
         }
 
+        public TEntity GetByName(string name)
+        {
+            return context.Set<TEntity>().Find(name);
+        }
+
 
         public TEntity? Create(TEntity entity)
         {
