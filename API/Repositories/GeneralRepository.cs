@@ -22,7 +22,10 @@ namespace API.Repositories
 
         public TEntity? GetByGuid(Guid guid)
         {
-            return context.Set<TEntity>().Find(guid);
+            var entity = context.Set<TEntity>().Find(guid);
+            context.ChangeTracker.Clear();
+            return entity;
+            /*return context.Set<TEntity>().Find(guid);*/
         }
 
         /*public TEntity? GetByName(string name)
