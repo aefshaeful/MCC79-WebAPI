@@ -25,13 +25,7 @@ namespace API.Repositories
             var entity = context.Set<TEntity>().Find(guid);
             context.ChangeTracker.Clear();
             return entity;
-            /*return context.Set<TEntity>().Find(guid);*/
         }
-
-        /*public TEntity? GetByName(string name)
-        {
-            return context.Set<TEntity>().Find(name);
-        }*/
 
 
         public TEntity? Create(TEntity entity)
@@ -64,16 +58,10 @@ namespace API.Repositories
         }
 
 
-        public bool Delete(Guid guid)
+        public bool Delete(TEntity entity)
         {
             try
             {
-                var entity = GetByGuid(guid);
-
-                if (entity is null)
-                {
-                    return false;
-                }
                 context.Set<TEntity>().Remove(entity);
                 context.SaveChanges();   // Menyimpan perubahan yang dilakukan ke dalam database.
                 return true;
@@ -82,6 +70,12 @@ namespace API.Repositories
             {
                 return false;   // Mengembalikan false untuk menandakan bahwa penghapusan gagal.
             }
+        }
+        
+
+        public bool IsExist(Guid guid)
+        {
+            return GetByGuid(guid) is not null;
         }
 
     }
