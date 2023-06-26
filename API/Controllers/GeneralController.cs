@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using API.Models;
 using API.Contracts;
-
+using API.Utilities.Enums;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -21,12 +21,29 @@ namespace API.Controllers
         {
             var entity = repository.GetAll();
 
-            if (!entity.Any())
+            if (!entity.Any()) 
+            {
+                return NotFound(new ResponseHandler<TEntity>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found!"
+                });
+            }
+            return Ok(new ResponseHandler<IEnumerable<TEntity>>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Data Found",
+                Data = entity
+            });
+
+            /*if (!entity.Any())
             {
                 return NotFound();
             }
 
-            return Ok(entity);
+            return Ok(entity);*/
         }
 
 
@@ -34,12 +51,31 @@ namespace API.Controllers
         public IActionResult GetByGuid(Guid guid)
         {
             var entity = repository.GetByGuid(guid);
+            
             if (entity is null)
+            {
+                return NotFound(new ResponseHandler<TEntity>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Guid Not Found!"
+                });
+            }
+            return Ok(new ResponseHandler<TEntity>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Guid Found",
+                Data = entity
+            });
+
+
+            /*if (entity is null)
             {
                 return NotFound();
             }
 
-            return Ok(entity);
+            return Ok(entity);*/
         }
 
 
@@ -47,7 +83,24 @@ namespace API.Controllers
         public IActionResult Create(TEntity entity)
         {
             var createdEntity = repository.Create(entity);
-            return Ok(createdEntity);
+
+            if (createdEntity is false)
+            {
+                return NotFound(new ResponseHandler<TEntity>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found!"
+                });
+            }
+            return Ok(new ResponseHandler<IEnumerable<TEntity>>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.Accepted.ToString(),
+                Message = "Data Accepted"
+            });
+
+            /* return Ok(createdEntity);*/
         }
 
 
@@ -55,12 +108,30 @@ namespace API.Controllers
         public IActionResult Update(TEntity entity)
         {
             var isUpdated = repository.Update(entity);
+
             if (!isUpdated)
+            {
+                return NotFound(new ResponseHandler<TEntity>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found!"
+                });
+            }
+            return Ok(new ResponseHandler<TEntity>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.Accepted.ToString(),
+                Message = "Data Accepted"
+            });
+
+
+            /*if (!isUpdated)
             {
                 return NotFound();
             }
 
-            return Ok();
+            return Ok();*/
         }
 
 
@@ -70,10 +141,27 @@ namespace API.Controllers
             var isDeleted = repository.Delete(guid);
             if (!isDeleted)
             {
+                return NotFound(new ResponseHandler<TEntity>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found!"
+                });
+            }
+            return Ok(new ResponseHandler<TEntity>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.Accepted.ToString(),
+                Message = "Data Accepted"
+            });
+
+
+           /* if (!isDeleted)
+            {
                 return NotFound();
             }
 
-            return Ok();
+            return Ok();*/
         }
     }
 }
