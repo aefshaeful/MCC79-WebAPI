@@ -7,7 +7,7 @@ namespace API.Controllers
     [ApiController]
     [Route("api/booking")]
 
-    public class BookingController : GeneralController<Booking>
+    public class BookingController : GeneralController<IBookingRepository, Booking>
     {
         public BookingController(IBookingRepository Repository) : base(Repository) { }
     }
