@@ -8,7 +8,7 @@ namespace API.Controllers
     [ApiController]
     [Route("api/employee")]
 
-    public class EmployeeController : GeneralController<Employee>
+    public class EmployeeController : GeneralController<IEmployeeRepository, Employee>
     {
         public EmployeeController(IEmployeeRepository Repository): base(Repository) { }
     }
