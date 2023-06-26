@@ -9,6 +9,6 @@ namespace API.Controllers
 
     public class BookingController : GeneralController<IBookingRepository, Booking>
     {
-        public BookingController(IBookingRepository Repository) : base(Repository) { }
+       /* public BookingController(IBookingRepository Repository) : base(Repository) { }*/
     }
 }

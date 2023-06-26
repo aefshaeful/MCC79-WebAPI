@@ -23,7 +23,7 @@ namespace API.Models
         public GenderEnum Gender { get; set; }
 
         [Column("hiring_date")]
-        public DateTime Hiringdate { get; set; }
+        public DateTime HiringDate { get; set; }
 
         [Column("email", TypeName = "nvarchar(100)")]
         public string Email { get; set; }

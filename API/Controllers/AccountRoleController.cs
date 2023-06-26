@@ -9,6 +9,6 @@ namespace API.Controllers
     [Route("api/accountrole")]
     public class AccountRoleController : GeneralController<IAccountRoleRepository, AccountRole>
     {
-        public AccountRoleController(IAccountRoleRepository Repository) : base(Repository) { }
+        /*public AccountRoleController(IAccountRoleRepository Repository) : base(Repository) { }*/
     }
 }

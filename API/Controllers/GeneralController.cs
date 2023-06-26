@@ -9,7 +9,7 @@ namespace API.Controllers
         where TIEntityRepository : IGeneralRepository<TEntity>
         where TEntity : class
     {
-        protected readonly TIEntityRepository repository;
+        /*protected readonly TIEntityRepository repository;
         public GeneralController(TIEntityRepository Repository)
         {
             repository = Repository;
@@ -38,12 +38,12 @@ namespace API.Controllers
                 Data = entity
             });
 
-            /*if (!entity.Any())
+            if (!entity.Any())
             {
                 return NotFound();
             }
 
-            return Ok(entity);*/
+            return Ok(entity);
         }
 
 
@@ -70,12 +70,12 @@ namespace API.Controllers
             });
 
 
-            /*if (entity is null)
+            if (entity is null)
             {
                 return NotFound();
             }
 
-            return Ok(entity);*/
+            return Ok(entity);
         }
 
 
@@ -100,7 +100,7 @@ namespace API.Controllers
                 Message = "Data Accepted"
             });
 
-            /* return Ok(createdEntity);*/
+            return Ok(createdEntity);
         }
 
 
@@ -126,12 +126,12 @@ namespace API.Controllers
             });
 
 
-            /*if (!isUpdated)
+            if (!isUpdated)
             {
                 return NotFound();
             }
 
-            return Ok();*/
+            return Ok();
         }
 
 
@@ -156,12 +156,12 @@ namespace API.Controllers
             });
 
 
-           /* if (!isDeleted)
+            if (!isDeleted)
             {
                 return NotFound();
             }
 
-            return Ok();*/
-        }
+            return Ok();
+        }*/
     }
 }

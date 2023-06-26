@@ -9,6 +9,6 @@ namespace API.Controllers
 
     public class RoomController : GeneralController<IRoomRepository, Room>
     {
-        public RoomController(IRoomRepository Repository) : base(Repository) { }
+       /* public RoomController(IRoomRepository Repository) : base(Repository) { }*/
     }
 }

@@ -10,6 +10,6 @@ namespace API.Controllers
 
     public class AccountController : GeneralController<IAccountRepository, Account>
     {
-        public AccountController(IAccountRepository Repository) : base(Repository) { }
+        /*public AccountController(IAccountRepository Repository) : base(Repository) { }*/
     }
 }

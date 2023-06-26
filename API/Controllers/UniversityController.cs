@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http.Headers;
 using API.Models;
 using API.Contracts;
 using System.Net;
+using API.Services;
+using API.DTOs.Universities;
 
 namespace API.Controllers
 {
@@ -11,173 +13,158 @@ namespace API.Controllers
     [Route("api/universities")]
     public class UniversityController : ControllerBase
     {
-        public UniversityController(IUniversityRepository Repository) : base(Repository) { }
+        private readonly UniversityService _service;
+        public UniversityController(UniversityService service)
+        {
+            _service = service;
+        }
+
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var entity = repository.GetAll();
+            var entity = _service.GetUniversity();
 
             if (!entity.Any())
             {
-                return NotFound(new ResponseHandler<TEntity>
+                return NotFound(new ResponseHandler<GetUniversityDto>
                 {
                     Code = StatusCodes.Status404NotFound,
                     Status = HttpStatusCode.NotFound.ToString(),
                     Message = "Data Not Found!"
                 });
             }
-            return Ok(new ResponseHandler<IEnumerable<TEntity>>
+            return Ok(new ResponseHandler<IEnumerable<GetUniversityDto>>
             {
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.OK.ToString(),
                 Message = "Data Found",
                 Data = entity
             });
-
-            /*if (!entity.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(entity);*/
         }
 
 
         [HttpGet("{guid}")]
         public IActionResult GetByGuid(Guid guid)
         {
-            var entity = repository.GetByGuid(guid);
+            var university = _service.GetUniversity(guid);
 
-            if (entity is null)
+            if (university is null)
             {
-                return NotFound(new ResponseHandler<TEntity>
+                return NotFound(new ResponseHandler<GetUniversityDto>
                 {
                     Code = StatusCodes.Status404NotFound,
                     Status = HttpStatusCode.NotFound.ToString(),
                     Message = "Guid Not Found!"
                 });
             }
-            return Ok(new ResponseHandler<TEntity>
+            return Ok(new ResponseHandler<GetUniversityDto>
             {
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.OK.ToString(),
                 Message = "Guid Found",
-                Data = entity
+                Data = university
             });
-
-
-            /*if (entity is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(entity);*/
         }
 
 
         [HttpPost]
-        public IActionResult Create(TEntity entity)
+        public IActionResult Create(NewUniversityDto newUniversityDto)
         {
-            var createdEntity = repository.Create(entity);
+            var createdUniversity = _service.CreateUniversity(newUniversityDto);
 
-            if (createdEntity is false)
+            if (createdUniversity is null)
             {
-                return NotFound(new ResponseHandler<TEntity>
+                return NotFound(new ResponseHandler<GetUniversityDto>
                 {
                     Code = StatusCodes.Status404NotFound,
                     Status = HttpStatusCode.NotFound.ToString(),
-                    Message = "Data Not Found!"
+                    Message = "Failed to Create!"
                 });
             }
-            return Ok(new ResponseHandler<IEnumerable<TEntity>>
+            return Ok(new ResponseHandler<GetUniversityDto>
             {
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.Accepted.ToString(),
-                Message = "Data Accepted"
+                Message = "Successfully Created",
+                Data = createdUniversity
             });
-
-            /* return Ok(createdEntity);*/
         }
 
 
         [HttpPut]
-        public IActionResult Update(TEntity entity)
+        public IActionResult Update(UpdateUniversityDto updateUniversityDto)
         {
-            var isUpdated = repository.Update(entity);
+            var isUpdated = _service.UpdateUniversity(updateUniversityDto);
 
-            if (!isUpdated)
+            if (isUpdated is -1)
             {
-                return NotFound(new ResponseHandler<TEntity>
+                return NotFound(new ResponseHandler<UpdateUniversityDto>
                 {
                     Code = StatusCodes.Status404NotFound,
                     Status = HttpStatusCode.NotFound.ToString(),
-                    Message = "Data Not Found!"
+                    Message = "Failed to Update!"
                 });
             }
-            return Ok(new ResponseHandler<TEntity>
+            if (isUpdated is 0)
+            {
+                return BadRequest(new ResponseHandler<UpdateUniversityDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Check Your Data"
+                });
+            }
+
+            return Ok(new ResponseHandler<GetUniversityDto>
             {
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.Accepted.ToString(),
                 Message = "Data Accepted"
             });
-
-
-            /*if (!isUpdated)
-            {
-                return NotFound();
-            }
-
-            return Ok();*/
         }
 
 
         [HttpDelete]
         public IActionResult Delete(Guid guid)
         {
-            var isDeleted = repository.Delete(guid);
-            if (!isDeleted)
+            var isDeleted = _service.DeleteUniversity(guid);
+
+            if (isDeleted is -1)
             {
-                return NotFound(new ResponseHandler<TEntity>
+                return NotFound(new ResponseHandler<GetUniversityDto>
                 {
                     Code = StatusCodes.Status404NotFound,
                     Status = HttpStatusCode.NotFound.ToString(),
-                    Message = "Data Not Found!"
+                    Message = "Guid Not Found!"
                 });
             }
-            return Ok(new ResponseHandler<TEntity>
+            if (isDeleted is 0)
+            {
+                return BadRequest(new ResponseHandler<UpdateUniversityDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Check Connection to Database"
+                });
+            }
+
+            return Ok(new ResponseHandler<UpdateUniversityDto>
             {
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.Accepted.ToString(),
-                Message = "Data Accepted"
+                Message = "Successfully Deleted"
             });
-
-
-            /* if (!isDeleted)
-             {
-                 return NotFound();
-             }
-
-             return Ok();*/
         }
-
 
 
         [HttpGet("get-by-name/{name}")]
         public IActionResult GetByName(string name)
         {
-            /* var university = repository.GetByName(name);
-             if (university is null)
-             {
-                 return NotFound();
-             }
-
-             return Ok(university);*/
-
-            var university = repository.GetByName(name);
+            var university = _service.GetUniversity(name);
             if (!university.Any())
             {
-                return NotFound(new ResponseHandler<University>
+                return NotFound(new ResponseHandler<GetUniversityDto>
                 {
                     Code = StatusCodes.Status404NotFound,
                     Status = HttpStatusCode.NotFound.ToString(),
@@ -185,7 +172,7 @@ namespace API.Controllers
                 });
             }
 
-            return Ok(new ResponseHandler<IEnumerable<University>>
+            return Ok(new ResponseHandler<IEnumerable<GetUniversityDto>>
             {
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.OK.ToString(),

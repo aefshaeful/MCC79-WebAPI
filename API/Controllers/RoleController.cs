@@ -11,6 +11,6 @@ namespace API.Controllers
 
     public class RoleController : GeneralController<IRoleRepository, Role>
     {
-        public RoleController(IRoleRepository Repository) : base(Repository) { }
+       /* public RoleController(IRoleRepository Repository) : base(Repository) { }*/
     }
 }
