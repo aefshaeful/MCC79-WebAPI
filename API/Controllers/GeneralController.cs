@@ -5,10 +5,12 @@ using API.Contracts;
 
 namespace API.Controllers
 {
-    public class GeneralController<TEntity> : ControllerBase where TEntity : class
+    public class GeneralController<TIEntityRepository, TEntity> : ControllerBase 
+        where TIEntityRepository : IGeneralRepository<TEntity>
+        where TEntity : class
     {
-        private readonly IGeneralRepository<TEntity> repository;
-        public GeneralController(IGeneralRepository<TEntity> Repository)
+        protected readonly TIEntityRepository repository;
+        public GeneralController(TIEntityRepository Repository)
         {
             repository = Repository;
         }
@@ -40,18 +42,6 @@ namespace API.Controllers
             return Ok(entity);
         }
 
-
-        [HttpGet("{name}")]
-        public IActionResult GetByName(string name)
-        {
-            var entity = repository.GetByName(name);
-            if (entity is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(entity);
-        }
 
         [HttpPost]
         public IActionResult Create(TEntity entity)
