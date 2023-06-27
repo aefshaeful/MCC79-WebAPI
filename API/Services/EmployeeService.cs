@@ -2,6 +2,7 @@
 using API.DTOs.Employee;
 using API.DTOs.Universities;
 using API.Models;
+using API.Repositories;
 using API.Utilities.Enums;
 
 namespace API.Services
@@ -14,6 +15,25 @@ namespace API.Services
         {
             _employeeRepository = employeeRepository;
         }
+
+        public string GenerateNIK(string Nik)
+        {
+            var nik = _employeeRepository.GetAll(); 
+            if (nik == null)
+            {
+                return "11111";
+            }
+
+            if (nik = "")
+            {
+                string lastNik = GetLastEmployeeNik();
+                int nextNik = int.Parse(lastNik) + 1;
+                return nextNik.ToString();
+            }
+
+            return Nik;
+        }
+
 
         public IEnumerable<GetEmployeeDto>? GetEmployee()
         {
@@ -28,7 +48,7 @@ namespace API.Services
                 Guid = employee.Guid,
                 Nik = employee.Nik,
                 FirstName = employee.FirstName,
-                LastName = employee.LastName,
+                LastName = employee.LastName ?? "",
                 BirthDate = employee.BirthDate,
                 Gender = employee.Gender,
                 HiringDate = employee.HiringDate,
