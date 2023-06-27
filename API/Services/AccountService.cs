@@ -2,7 +2,7 @@
 using API.DTOs.Account;
 using API.DTOs.Universities;
 using API.Models;
-
+using API.Utilities.Enums;
 
 namespace API.Services
 {
@@ -62,7 +62,7 @@ namespace API.Services
             var account = new Account
             {
                 Guid = newAccountDto.Guid,
-                Password = newAccountDto.Password,
+                Password = Hasting.HashPassword(newAccountDto.Password),
                 IsDeleted = newAccountDto.IsDeleted,
                 Otp = newAccountDto.Otp,
                 IsUsed = newAccountDto.IsUsed,
@@ -105,7 +105,7 @@ namespace API.Services
             {
 
                 Guid = updateAccountDto.Guid,
-                Password = updateAccountDto.Password,
+                Password = Hasting.HashPassword(updateAccountDto.Password),
                 IsDeleted = updateAccountDto.IsDeleted,
                 Otp = updateAccountDto.Otp,
                 IsUsed = updateAccountDto.IsUsed,

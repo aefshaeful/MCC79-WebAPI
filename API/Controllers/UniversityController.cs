@@ -141,7 +141,7 @@ namespace API.Controllers
             }
             if (isDeleted is 0)
             {
-                return BadRequest(new ResponseHandler<UpdateUniversityDto>
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<UpdateUniversityDto>
                 {
                     Code = StatusCodes.Status500InternalServerError,
                     Status = HttpStatusCode.InternalServerError.ToString(),
