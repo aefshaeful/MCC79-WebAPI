@@ -62,7 +62,7 @@ namespace API.Services
 
         public GetBookingDto? CreateBooking(NewBookingDto newBookingDto)
         {
-            var booking = new Booking
+            var booking = new Booking // Membuat objek dari sebuah kelas yang miliki properti guid dll.
             {
                 Guid = new Guid(),
                 StartDate = newBookingDto.StartDate,
