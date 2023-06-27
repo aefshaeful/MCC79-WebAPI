@@ -26,7 +26,7 @@ namespace API.Controllers
         {
             var roles = _service.GetRole();
 
-            if (!roles.Any())
+            if (roles == null)
             {
                 return NotFound(new ResponseHandler<GetRoleDto>
                 {

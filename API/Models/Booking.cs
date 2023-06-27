@@ -14,7 +14,7 @@ namespace API.Models
         public DateTime EndDate { get; set; }
 
         [Column("status")]
-        public GenderEnum Status { get; set; }
+        public StatusLevel Status { get; set; }
 
         [Column("remarks", TypeName = "nvarchar(255)")]
         public string Remarks { get; set; }

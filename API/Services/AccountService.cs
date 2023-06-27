@@ -61,7 +61,7 @@ namespace API.Services
         {
             var account = new Account
             {
-                Guid = new Guid(),
+                Guid = newAccountDto.Guid,
                 Password = newAccountDto.Password,
                 IsDeleted = newAccountDto.IsDeleted,
                 Otp = newAccountDto.Otp,

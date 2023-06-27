@@ -26,7 +26,7 @@ namespace API.Controllers
         {
             var accounts = _service.GetAccount();
 
-            if (!accounts.Any())
+            if (accounts == null)
             {
                 return NotFound(new ResponseHandler<GetAccountDto>
                 {

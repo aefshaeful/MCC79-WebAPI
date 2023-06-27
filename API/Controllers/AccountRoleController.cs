@@ -25,7 +25,7 @@ namespace API.Controllers
         {
             var accountsRole = _service.GetAccountRole();
 
-            if (!accountsRole.Any())
+            if (accountsRole == null)
             {
                 return NotFound(new ResponseHandler<GetAccountRoleDto>
                 {
