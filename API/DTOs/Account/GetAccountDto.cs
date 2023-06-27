@@ -1,4 +1,6 @@
-﻿namespace API.DTOs.Account
+﻿using API.Utilities.Enums;
+
+namespace API.DTOs.Account
 {
     public class GetAccountDto
     {
