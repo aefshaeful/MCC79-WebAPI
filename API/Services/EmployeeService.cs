@@ -16,22 +16,17 @@ namespace API.Services
             _employeeRepository = employeeRepository;
         }
 
-        public string GenerateNIK(string Nik)
+        public string GenerateNIK()
         {
-            var nik = _employeeRepository.GetAll(); 
-            if (nik == null)
+            var employees = _employeeRepository.GetAll();
+            if (employees == null)
             {
                 return "11111";
             }
 
-            if (nik = "")
-            {
-                string lastNik = GetLastEmployeeNik();
-                int nextNik = int.Parse(lastNik) + 1;
-                return nextNik.ToString();
-            }
-
-            return Nik;
+            var lastNik = employees.LastOrDefault();
+            var nextNik = Convert.ToInt32(lastNik.Nik) + 1;    // var nextNik = int.Parse(lastNik.Nik) + 1;
+            return nextNik.ToString();
         }
 
 
@@ -91,7 +86,7 @@ namespace API.Services
             var employee = new Employee
             {
                 Guid = new Guid(),
-                Nik = newEmployeeDto.Nik,
+                Nik = GenerateNIK(),
                 FirstName = newEmployeeDto.FirstName,
                 LastName = newEmployeeDto.LastName,
                 BirthDate = newEmployeeDto.BirthDate,
@@ -139,7 +134,7 @@ namespace API.Services
             var employee = new Employee
             {
                 Guid = updateEmployeeDto.Guid,
-                Nik = updateEmployeeDto.Nik,
+                Nik = GenerateNIK(),
                 FirstName = updateEmployeeDto.FirstName,
                 LastName = updateEmployeeDto.LastName,
                 BirthDate = updateEmployeeDto.BirthDate,
@@ -178,5 +173,19 @@ namespace API.Services
 
             return 1;
         }
+
+
+        /*public string GenerateNIK()
+        {
+            var getlastNik = _employeeRepository.GetAll().Select(employee => employee.Nik).LastOrDefault();
+
+            if (getlastNik is null)
+            {
+                return "11111"; // No employee found, return default NIK
+            }
+
+            var lastNik = Convert.ToInt32(getlastNik) + 1;
+            return lastNik.ToString();
+        }*/
     }
 }
