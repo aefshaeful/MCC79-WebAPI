@@ -93,6 +93,31 @@ namespace API.Controllers
         }
 
 
+        [Route("register")]
+        [HttpPost]
+        public IActionResult RegisterAccount(GetRegisterDto getRegisterDto)
+        {
+            var createdRegister = _service.RegisterAccount(getRegisterDto);
+            if (createdRegister == null)
+            {
+                return BadRequest(new ResponseHandler<GetRegisterDto>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Register failed"
+                });
+            }
+
+            return Ok(new ResponseHandler<GetRegisterDto>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Successfully register",
+                Data = createdRegister
+            });
+        }
+
+
         [HttpPut]
         public IActionResult Update(UpdateAccountDto updateAccountDto)
         {
