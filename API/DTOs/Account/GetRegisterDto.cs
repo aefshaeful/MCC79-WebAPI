@@ -31,10 +31,9 @@ namespace API.DTOs.Account
         public string UniversityCode { get; set; }
         [Required]
         public string UniversityName { get; set; }
-        [Required]
         [PasswordPolicy]
         public string Password { get; set; }
-        [Required]
+        [ConfirmPassword("Password", ErrorMessage = "Password do not match")]
         public string ConfirmPassword { get; set; }
     }
 }
