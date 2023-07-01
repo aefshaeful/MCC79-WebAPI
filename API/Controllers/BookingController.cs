@@ -69,12 +69,12 @@ namespace API.Controllers
         }
 
 
-        [HttpGet("BookedBy")]
+        [HttpGet("GetRoomsInUseToday")]
         public IActionResult GetDetail()
         {
-            var booking = _service.GetRoomsInUseToday();
+            var bookingDetail = _service.GetRoomsInUseToday();
 
-            if (booking == null)
+            if (bookingDetail == null)
             {
                 return NotFound(new ResponseHandler<GetBookedByDto>
                 {
@@ -83,12 +83,13 @@ namespace API.Controllers
                     Message = "Data Not Found!"
                 });
             }
+
             return Ok(new ResponseHandler<IEnumerable<GetBookedByDto>>
             {
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.OK.ToString(),
                 Message = "Data Found",
-                Data = booking
+                Data = bookingDetail
             });
         }
 

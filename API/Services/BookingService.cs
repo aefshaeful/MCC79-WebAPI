@@ -70,7 +70,7 @@ namespace API.Services
             var bookings = _bookingRepository.GetAll();
             if (bookings == null)
             {
-                return null; // No Booking  found
+                return null; 
             }
 
             var employees = _employeeRepository.GetAll();
@@ -80,7 +80,7 @@ namespace API.Services
                 from booking in bookings
                 join employee in employees on booking.EmployeeGuid equals employee.Guid
                 join room in rooms on booking.RoomGuid equals room.Guid
-                where booking.StartDate <= DateTime.Now.Date && booking.EndDate >= DateTime.Now
+                where booking.StartDate <= DateTime.Now && booking.EndDate >= DateTime.Now
                 select new GetBookedByDto
                 {
                     BookingGuid = booking.Guid,
@@ -92,10 +92,19 @@ namespace API.Services
 
             if (!detailBookings.Any())
             {
-                return null; // No Booking  found
+                return null; 
             }
 
-            return detailBookings;
+
+            var toDto = detailBookings.Select(detailBookings => new GetBookedByDto
+            {
+                BookingGuid = detailBookings.BookingGuid,
+                RoomName = detailBookings.RoomName,
+                Status = detailBookings.Status,
+                Floor = detailBookings.Floor,
+                BookedBy = detailBookings.BookedBy
+            });
+            return toDto;
         }
 
 
