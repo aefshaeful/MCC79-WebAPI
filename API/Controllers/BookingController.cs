@@ -69,7 +69,7 @@ namespace API.Controllers
         }
 
 
-        [HttpGet("GetRoomsInUseToday")]
+        [HttpGet("rooms-in-use-today")]
         public IActionResult GetDetail()
         {
             var bookingDetail = _service.GetRoomsInUseToday();
