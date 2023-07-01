@@ -2,6 +2,8 @@ using API.Contracts;
 using API.Data;
 using API.Repositories;
 using API.Services;
+using API.Utilities.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +34,9 @@ builder.Services.AddScoped<AccountRoleService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<RoomService>();
+
+// Add TokenHandler
+builder.Services.AddScoped<ITokenHandler, TokenHandler>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

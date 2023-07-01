@@ -21,6 +21,47 @@ namespace API.Controllers
         }
 
 
+        [HttpPost("login")]
+        public IActionResult LoginRequest(LoginDto loginDto)
+        {
+            var login = _service.LoginAccount(loginDto);
+            if (login is "0")
+            {
+                return NotFound(new ResponseHandler<LoginDto>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data not found"
+                });
+            }
+            if (login is "-1")
+            {
+                return BadRequest(new ResponseHandler<LoginDto>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Password is incorrect"
+                });
+            }
+            if (login is "-2")
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseHandler<LoginDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Login failed because token error"
+                });
+            }
+            return Ok(new ResponseHandler<string>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Successfully Login",
+                Data = login
+            });
+        }
+
+
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -147,6 +188,70 @@ namespace API.Controllers
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.Accepted.ToString(),
                 Message = "Data Accepted"
+            });
+        }
+
+
+        [HttpPut("changePassword")]
+        public IActionResult Update(ChangePasswordDto changePasswordDto)
+        {
+            var updatedPassword = _service.ChangePassword(changePasswordDto);
+
+            if (updatedPassword is 0)
+            {
+                return NotFound(new ResponseHandler<ChangePasswordDto>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Email Not Found!"
+                });
+            }
+
+            if (updatedPassword is -1)
+            {
+                return BadRequest(new ResponseHandler<ChangePasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Otp Don't Match"
+                });
+            }
+
+            if (updatedPassword is -2)
+            {
+                return BadRequest(new ResponseHandler<ChangePasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Otp has been used"
+                });
+            }
+
+            if (updatedPassword is -3)
+            {
+                return BadRequest(new ResponseHandler<ChangePasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Otp is Expired"
+                });
+            }
+
+            if (updatedPassword is -4)
+            {
+                return BadRequest(new ResponseHandler<ChangePasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Change Password Failed"
+                });
+            }
+
+            return Ok(new ResponseHandler<ChangePasswordDto>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.Accepted.ToString(),
+                Message = "Change Password Successfully"
             });
         }
 
