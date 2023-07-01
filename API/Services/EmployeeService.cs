@@ -175,7 +175,7 @@ namespace API.Services
         }
 
 
-        /*public string GenerateNIK()
+       /* public string GenerateNIK()
         {
             var getlastNik = _employeeRepository.GetAll().Select(employee => employee.Nik).LastOrDefault();
 
