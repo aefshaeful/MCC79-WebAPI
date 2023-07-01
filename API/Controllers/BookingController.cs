@@ -69,6 +69,30 @@ namespace API.Controllers
         }
 
 
+        [HttpGet("BookedBy")]
+        public IActionResult GetDetail()
+        {
+            var booking = _service.GetRoomsInUseToday();
+
+            if (booking == null)
+            {
+                return NotFound(new ResponseHandler<GetBookedByDto>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found!"
+                });
+            }
+            return Ok(new ResponseHandler<IEnumerable<GetBookedByDto>>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Data Found",
+                Data = booking
+            });
+        }
+
+
         [HttpPost]
         public IActionResult Create(NewBookingDto newBookingDto)
         {

@@ -8,9 +8,14 @@ namespace API.Services
     public class BookingService
     {
         private readonly IBookingRepository _bookingRepository;
-        public BookingService(IBookingRepository bookingRepository)
+        private readonly IRoomRepository _roomRepository;
+        private readonly IEmployeeRepository _employeeRepository;
+
+        public BookingService(IBookingRepository bookingRepository, IRoomRepository roomRepository, IEmployeeRepository employeeRepository)
         {
             _bookingRepository = bookingRepository;
+            _roomRepository = roomRepository;
+            _employeeRepository = employeeRepository;
         }
 
         public IEnumerable<GetBookingDto>? GetBooking()
@@ -57,6 +62,40 @@ namespace API.Services
             };
 
             return toDto;
+        }
+
+
+        public IEnumerable<GetBookedByDto> GetRoomsInUseToday()
+        {
+            var bookings = _bookingRepository.GetAll();
+            if (bookings == null)
+            {
+                return null; // No Booking  found
+            }
+
+            var employees = _employeeRepository.GetAll();
+            var rooms = _roomRepository.GetAll();
+
+            var detailBookings = (
+                from booking in bookings
+                join employee in employees on booking.EmployeeGuid equals employee.Guid
+                join room in rooms on booking.RoomGuid equals room.Guid
+                where booking.StartDate <= DateTime.Now.Date && booking.EndDate >= DateTime.Now
+                select new GetBookedByDto
+                {
+                    BookingGuid = booking.Guid,
+                    RoomName = room.Name,
+                    Status = booking.Status,
+                    Floor = room.Floor,
+                    BookedBy = employee.FirstName + " " + employee.LastName,
+                }).ToList();
+
+            if (!detailBookings.Any())
+            {
+                return null; // No Booking  found
+            }
+
+            return detailBookings;
         }
 
 
