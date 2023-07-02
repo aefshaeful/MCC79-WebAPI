@@ -145,6 +145,31 @@ namespace API.Controllers
         }
 
 
+        [HttpGet("booking-duration")]
+        public IActionResult CalculateBookingLenght()
+        {
+            var bookingDuration = _service.BookingDuration();
+
+            if (bookingDuration == null)
+            {
+                return NotFound(new ResponseHandler<BookingLengthDto>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data not found"
+                });
+            }
+
+            return Ok(new ResponseHandler<IEnumerable<BookingLengthDto>>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Data found",
+                Data = bookingDuration
+            });
+        }
+
+
         [HttpPost]
         public IActionResult Create(NewBookingDto newBookingDto)
         {
