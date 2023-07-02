@@ -192,7 +192,7 @@ namespace API.Controllers
         }
 
 
-        [HttpPut("changePassword")]
+        [HttpPut("change-password")]
         public IActionResult Update(ChangePasswordDto changePasswordDto)
         {
             var updatedPassword = _service.ChangePassword(changePasswordDto);
@@ -252,6 +252,40 @@ namespace API.Controllers
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.Accepted.ToString(),
                 Message = "Change Password Successfully"
+            });
+        }
+
+
+        [HttpPost("forgot-password")]
+        public IActionResult ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        {
+            var forgotPassword = _service.ForgotPassword(forgotPasswordDto);
+
+            if (forgotPassword is 0)
+            {
+                return NotFound(new ResponseHandler<ForgotPasswordDto>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Email Not Found!"
+                });
+            }
+
+            if (forgotPassword is -1)
+            {
+                return BadRequest(new ResponseHandler<ForgotPasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Forgot Password Process Failed"
+                });
+            }
+
+            return Ok(new ResponseHandler<ForgotPasswordDto>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.Accepted.ToString(),
+                Message = "Otp Has Been Sent to Your Email"
             });
         }
 

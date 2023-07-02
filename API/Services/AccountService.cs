@@ -7,6 +7,9 @@ using API.Models;
 using API.Repositories;
 using API.Utilities.Enums;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace API.Services
 {
@@ -18,6 +21,7 @@ namespace API.Services
         private readonly IUniversityRepository _universityRepository;
         private readonly IEducationRepository _educationRepository;
         private readonly ITokenHandler _tokenHandler;
+        private readonly IEmailHandler _emailHandler;
         private readonly IAccountRoleRepository _accountRoleRepository;
         private readonly IRoleRepository _roleRepository;
 
@@ -27,6 +31,7 @@ namespace API.Services
                 IUniversityRepository universityRepository,
                 IEducationRepository educationRepository,
                 ITokenHandler tokenHandler,
+                IEmailHandler emailHandler,
                 IAccountRoleRepository accountRoleRepository,
                 IRoleRepository roleRepository)
         {
@@ -36,6 +41,7 @@ namespace API.Services
             _universityRepository = universityRepository;
             _educationRepository = educationRepository;
             _tokenHandler = tokenHandler;
+            _emailHandler = emailHandler;
             _accountRoleRepository = accountRoleRepository;
             _roleRepository = roleRepository;
         }
@@ -44,6 +50,7 @@ namespace API.Services
         * <summary>
         * Kelas AccountService merupakan layanan atau service untuk melakukan operasi terkait akun. Kelas tersebut memiliki beberapa dependency yang diinject melalui konstruktor, yaitu IAccountRepository, IEmployeeRepository, IUniversityRepository, dan IEducationRepository.
         */
+
 
         public string LoginAccount(LoginDto loginDto)
         {
@@ -100,7 +107,8 @@ namespace API.Services
                 Password = account.Password,
                 IsDeleted = account.IsDeleted,
                 Otp = account.Otp,
-                IsUsed = account.IsUsed
+                IsUsed = account.IsUsed,
+                ExpiredTime = account.ExpiredTime
             }).ToList();
 
             return toDto;
@@ -122,7 +130,8 @@ namespace API.Services
                 Password = account.Password,
                 IsDeleted = account.IsDeleted,
                 Otp = account.Otp,
-                IsUsed = account.IsUsed
+                IsUsed = account.IsUsed,
+                ExpiredTime = account.ExpiredTime,
             };
 
             return toDto;
@@ -138,7 +147,7 @@ namespace API.Services
                 IsDeleted = newAccountDto.IsDeleted,
                 Otp = newAccountDto.Otp,
                 IsUsed = newAccountDto.IsUsed,
-               /* ExpiredTime = newAccountDto.ExpiredTime,*/
+                ExpiredTime = newAccountDto.ExpiredTime,
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now
             };
@@ -156,7 +165,7 @@ namespace API.Services
                 IsDeleted = account.IsDeleted,
                 Otp = account.Otp,
                 IsUsed = account.IsUsed,
-                /*ExpiredTime = account.ExpiredTime*/
+                ExpiredTime = account.ExpiredTime
             };
 
             return toDto;
@@ -211,11 +220,6 @@ namespace API.Services
                     Guid = employeeData.Guid,
                     Password = Hashing.HashPassword(getRegisterDto.Password),
                 };
-
-                /*if (getRegisterDto.Password != getRegisterDto.ConfirmPassword)
-                {
-                    return null;
-                }*/
                 var createdAccount = _accountRepository.Create(account);
 
 
@@ -300,6 +304,44 @@ namespace API.Services
         }
 
 
+        public int ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        {
+            var emailValidation = _employeeRepository.CheckEmail(forgotPasswordDto.Email);
+            if (emailValidation == null)
+            {
+                return 0;
+            }
+
+
+            var getAccount = _accountRepository.GetByGuid(emailValidation.Guid);
+
+
+            int generateOtp = int.Parse(new string(Enumerable.Range(1, 6).Select(i => $"{RandomNumberGenerator.GetInt32(0, 10)}"[0]).ToArray()));
+
+
+            var updateAccountDto = new Account
+            {
+                Guid = emailValidation.Guid,
+                Password = getAccount.Password,
+                IsDeleted = getAccount.IsDeleted,
+                Otp = generateOtp,
+                IsUsed = false,
+                ExpiredTime = DateTime.Now.AddMinutes(5)
+            };
+            
+            var updateResult = _accountRepository.Update(updateAccountDto);
+            if (!updateResult)
+            {
+                return -1;
+            }
+
+            var client = emailValidation.FirstName;
+            _emailHandler.SendEmail(forgotPasswordDto.Email, "Forgot Password", $"Hello {client}, Your OTP code is {generateOtp}");
+
+
+            return 1;
+        }
+
 
         public int UpdateAccount(UpdateAccountDto updateAccountDto)
         {
@@ -319,7 +361,7 @@ namespace API.Services
                 IsDeleted = updateAccountDto.IsDeleted,
                 Otp = updateAccountDto.Otp,
                 IsUsed = updateAccountDto.IsUsed,
-                /*ExpiredTime = updateAccountDto.ExpiredTime,*/
+                ExpiredTime = updateAccountDto.ExpiredTime,
                 ModifiedDate = DateTime.Now,
                 CreatedDate = getAccount!.CreatedDate
             };
