@@ -13,6 +13,7 @@ using System.Text;
 using static System.Net.WebRequestMethods;
 using API.DTOs.Booking;
 using System.Diagnostics.Metrics;
+using System.Xml.Linq;
 
 namespace API.Services
 {
@@ -260,23 +261,25 @@ namespace API.Services
                 };
                 var createdEmployee = _employeeRepository.Create(employeeData);
 
-
-                var universityData = new University
+                var universityEntity = _universityRepository.CreateWithDCheckCodeAndName(getRegisterDto.UniversityCode, getRegisterDto.UniversityName);
+                if (universityEntity is null)
                 {
-                   /* Guid = new Guid(),*/
-                    Code = getRegisterDto.UniversityCode,
-                    Name = getRegisterDto.UniversityName
-                };
-                var createdUniversity = _universityRepository.Create(universityData);
+                    var university = new University
+                    {/* Guid = new Guid(),*/
+                        Code = getRegisterDto.UniversityCode,
+                        Name = getRegisterDto.UniversityName
+                    };
+                    universityEntity = _universityRepository.Create(university);
+                }
+                
                   
-
                 var educationData = new Education
                 {
                     Guid = employeeData.Guid,
                     Major = getRegisterDto.Major,
                     Degree = getRegisterDto.Degree,
                     Gpa = getRegisterDto.Gpa,
-                    UniversityGuid = universityData.Guid
+                    UniversityGuid = universityEntity.Guid
                 };
                 var createdEducation = _educationRepository.Create(educationData);
                 
@@ -303,8 +306,8 @@ namespace API.Services
                     Major = createdEducation.Major,
                     Degree = createdEducation.Degree,
                     Gpa = createdEducation.Gpa,
-                    UniversityCode = createdUniversity.Code,
-                    UniversityName = createdUniversity.Name
+                    UniversityCode = universityEntity.Code,
+                    UniversityName = universityEntity.Name
                 };
 
                 transaction.Commit();

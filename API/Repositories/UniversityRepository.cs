@@ -14,10 +14,10 @@ namespace API.Repositories
             return context.Set<University>().Where(university => university.Name.Contains(name));   // Melakukan query pada database.
         }
 
-       /* public University? CheckCodeAndName(string code, string name) 
+        public University? CreateWithDCheckCodeAndName(string code, string name)
         {
             return context.Set<University>().FirstOrDefault(university => university.Name.ToLower() == name.ToLower() && university.Code.ToLower() == code.ToLower());
 
-        }*/
+        }
     }
 }
