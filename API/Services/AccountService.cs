@@ -1,6 +1,7 @@
 ﻿using API.Contracts;
 using API.Data;
 using API.DTOs.Account;
+using API.DTOs.AccountRole;
 using API.DTOs.Employee;
 using API.DTOs.Universities;
 using API.Models;
@@ -14,6 +15,7 @@ using static System.Net.WebRequestMethods;
 using API.DTOs.Booking;
 using System.Diagnostics.Metrics;
 using System.Xml.Linq;
+
 
 namespace API.Services
 {
@@ -50,10 +52,96 @@ namespace API.Services
             _roleRepository = roleRepository;
         }
 
-        /*   
-        * <summary>
-        * Kelas AccountService merupakan layanan atau service untuk melakukan operasi terkait akun. Kelas tersebut memiliki beberapa dependency yang diinject melalui konstruktor, yaitu IAccountRepository, IEmployeeRepository, IUniversityRepository, dan IEducationRepository.
-        */
+
+        public GetRegisterDto RegisterAccount(GetRegisterDto getRegisterDto)
+        {
+            EmployeeService employeService = new EmployeeService(_employeeRepository, _universityRepository, _educationRepository);
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                var employeeData = new Employee
+                {
+                    Guid = new Guid(),
+                    Nik = employeService.GenerateNIK(),
+                    FirstName = getRegisterDto.FirstName,
+                    LastName = getRegisterDto.LastName,
+                    BirthDate = getRegisterDto.BirthDate,
+                    Gender = getRegisterDto.Gender,
+                    HiringDate = getRegisterDto.HiringDate,
+                    Email = getRegisterDto.Email,
+                    PhoneNumber = getRegisterDto.PhoneNumber,
+                    CreatedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now
+                };
+                var createdEmployee = _employeeRepository.Create(employeeData);
+
+                var universityEntity = _universityRepository.CreateWithDCheckCodeAndName(getRegisterDto.UniversityCode, getRegisterDto.UniversityName);
+                if (universityEntity is null)
+                {
+                    var university = new University
+                    {/* Guid = new Guid(),*/
+                        Code = getRegisterDto.UniversityCode,
+                        Name = getRegisterDto.UniversityName
+                    };
+                    universityEntity = _universityRepository.Create(university);
+                }
+
+
+                var educationData = new Education
+                {
+                    Guid = employeeData.Guid,
+                    Major = getRegisterDto.Major,
+                    Degree = getRegisterDto.Degree,
+                    Gpa = getRegisterDto.Gpa,
+                    UniversityGuid = universityEntity.Guid
+                };
+                var createdEducation = _educationRepository.Create(educationData);
+
+
+                var account = new Account
+                {
+                    Guid = employeeData.Guid,
+                    Password = Hashing.HashPassword(getRegisterDto.Password),
+                };
+                var createdAccount = _accountRepository.Create(account);
+
+
+                var getRoleUser = _roleRepository.GetByName("User");
+                var getAccountRoleUser = new AccountRole
+                {
+                    AccountGuid = account.Guid,
+                    RoleGuid = getRoleUser.Guid
+                };
+                var createdAccountRoleUser = _accountRoleRepository.Create(getAccountRoleUser);
+
+
+                var toDto = new GetRegisterDto
+                {
+                    FirstName = createdEmployee.FirstName,
+                    LastName = createdEmployee.LastName,
+                    BirthDate = createdEmployee.BirthDate,
+                    Gender = createdEmployee.Gender,
+                    HiringDate = createdEmployee.HiringDate,
+                    Email = createdEmployee.Email,
+                    PhoneNumber = createdEmployee.PhoneNumber,
+                    Password = createdAccount.Password,
+                    ConfirmPassword = getRegisterDto.ConfirmPassword,
+                    Major = createdEducation.Major,
+                    Degree = createdEducation.Degree,
+                    Gpa = createdEducation.Gpa,
+                    UniversityCode = universityEntity.Code,
+                    UniversityName = universityEntity.Name
+                };
+
+                transaction.Commit();
+                return toDto;
+            }
+            catch
+            {
+                transaction.Rollback();
+                return null;
+            }
+        }
 
 
         public string LoginAccount(LoginDto loginDto)
@@ -76,20 +164,28 @@ namespace API.Services
                 return "-1";
             }
 
-            var claims = new List<Claim>()
-            {
-                new Claim("NIK", emailEmp.Nik),
-                new Claim("FullName", $"{emailEmp.FirstName} {emailEmp.LastName}"),
-                new Claim("Email", loginDto.Email)
-            };
 
             try
             {
+                var claims = new List<Claim>()
+                {
+                    new Claim("NIK", emailEmp.Nik),
+                    new Claim("FullName", $"{emailEmp.FirstName} {emailEmp.LastName}"),
+                    new Claim("Email", loginDto.Email)
+                };
+               
+                var getAccountRole = _accountRoleRepository.GetAccountRoleByAccountGuid(emailEmp.Guid);
+                var getRoleNameByAccountRole = from ar in getAccountRole
+                                               join r in _roleRepository.GetAll() on ar.RoleGuid equals r.Guid
+                                               select r.Name;
+
+                claims.AddRange(getRoleNameByAccountRole.Select(role => new Claim(ClaimTypes.Role, role)));
+
                 var getToken = _tokenHandler.GenerateToken(claims);
                 return getToken;
             }
 
-            catch
+            catch (Exception)
             {
                 return "-2";
             }
@@ -97,66 +193,89 @@ namespace API.Services
         }
 
 
-        public IEnumerable<EmployeeMasterDto>? GetAllMaster()
+        public int ForgotPassword(ForgotPasswordDto forgotPasswordDto)
         {
-            
-            var master = (
-                from employee in _employeeRepository.GetAll()
-                join education in _educationRepository.GetAll() on employee.Guid equals education.Guid
-                join university in _universityRepository.GetAll() on education.UniversityGuid equals university.Guid
-               /* join accountRole in _accountRoleRepository.GetAll() on employee.Guid equals accountRole.Guid
-                join role in _roleRepository.GetAll() on accountRole.RoleGuid equals role.Guid*/
-                select new EmployeeMasterDto
-                {
-                    EmployeeGuid = employee.Guid,
-                    FullName = employee.FirstName + " " + employee.LastName,
-                    Nik = employee.Nik,
-                    BirthDate = employee.BirthDate,
-                    Email = employee.Email,
-                    Gender = employee.Gender,
-                    HiringDate = employee.HiringDate,
-                    PhoneNumber = employee.PhoneNumber,
-                    Major = education.Major,
-                    Degree = education.Degree,
-                    Gpa = education.Gpa,
-                    UniversityName = university.Name,
-                   /* Role = role.Name*/
-                }).ToList();
-
-            if (!master.Any())
+            var emailValidation = _employeeRepository.CheckEmail(forgotPasswordDto.Email);
+            if (emailValidation == null)
             {
-                return null;
+                return 0;
             }
 
-            return master;
-            /*var toDto = master.Select(master => new EmployeeMasterDto
-            {
-                EmployeeGuid = master.Guid,
-                FullName = master.FullName,
-                Nik = master.Nik,
-                BirthDate = master.BirthDate,
-                Email = master.Email,
-                Gender = master.Gender,
-                HiringDate = master.HiringDate,
-                PhoneNumber = master.PhoneNumber,
-                Major = master.Major,
-                Degree = master.Degree,
-                Gpa = master.Gpa,
-                UniversityName = master.UniversityName,
-                *//*Role = master.Role*//*
-            });
 
-            return toDto;*/
+            var getAccount = _accountRepository.GetByGuid(emailValidation.Guid);
+
+
+            int generateOtp = int.Parse(new string(Enumerable.Range(1, 6).Select(i => $"{RandomNumberGenerator.GetInt32(0, 10)}"[0]).ToArray()));
+
+
+            var updateAccountDto = new Account
+            {
+                Guid = emailValidation.Guid,
+                Password = getAccount.Password,
+                IsDeleted = getAccount.IsDeleted,
+                Otp = generateOtp,
+                IsUsed = false,
+                ExpiredTime = DateTime.Now.AddMinutes(5)
+            };
+
+            var updateResult = _accountRepository.Update(updateAccountDto);
+            if (!updateResult)
+            {
+                return -1;
+            }
+
+            var client = emailValidation.FirstName;
+            _emailHandler.SendEmail(forgotPasswordDto.Email, "Forgot Password", $"Hello {client}, Your OTP code is {generateOtp}");
+
+
+            return 1;
         }
 
 
-        public EmployeeMasterDto? GetMasterByGuid(Guid guid)
+        public int ChangePassword(ChangePasswordDto changePasswordDto)
         {
-            var master = GetAllMaster();
+            var changePassword = _employeeRepository.CheckEmail(changePasswordDto.Email);
+            if (changePassword is null)
+            {
+                return 0;
+            }
 
-            var masterByGuid = master.FirstOrDefault(master => master.EmployeeGuid == guid);
+            var getAccount = _accountRepository.GetByGuid(changePassword.Guid);
+            if (getAccount.Otp != changePasswordDto.Otp)
+            {
+                return -1;
+            }
 
-            return masterByGuid;
+            if (getAccount.IsUsed == true)
+            {
+                return -2;
+            }
+
+            if (getAccount.ExpiredTime < DateTime.Now)
+            {
+                return -3;
+            }
+
+            var accountNewPassword = new Account
+            {
+
+                Guid = getAccount.Guid,
+                Password = Hashing.HashPassword(changePasswordDto.NewPassword),
+                IsDeleted = getAccount.IsDeleted,
+                Otp = getAccount.Otp,
+                IsUsed = getAccount.IsUsed,
+                ExpiredTime = getAccount.ExpiredTime,
+                ModifiedDate = DateTime.Now,
+                CreatedDate = getAccount!.CreatedDate
+            };
+
+            var isUpdate = _accountRepository.Update(accountNewPassword);
+            if (!isUpdate)
+            {
+                return -4;
+            }
+
+            return 1;
         }
 
 
@@ -239,179 +358,6 @@ namespace API.Services
         }
 
 
-        public GetRegisterDto RegisterAccount(GetRegisterDto getRegisterDto)
-        {
-            EmployeeService employeeService = new EmployeeService(_employeeRepository);
-            using var transaction = _context.Database.BeginTransaction();
-            try
-            {
-                var employeeData = new Employee
-                {
-                    Guid = new Guid(),
-                    Nik = employeeService.GenerateNIK(),
-                    FirstName = getRegisterDto.FirstName,
-                    LastName = getRegisterDto.LastName,
-                    BirthDate = getRegisterDto.BirthDate,
-                    Gender = getRegisterDto.Gender,
-                    HiringDate = getRegisterDto.HiringDate,
-                    Email = getRegisterDto.Email,
-                    PhoneNumber = getRegisterDto.PhoneNumber,
-                    CreatedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now
-                };
-                var createdEmployee = _employeeRepository.Create(employeeData);
-
-                var universityEntity = _universityRepository.CreateWithDCheckCodeAndName(getRegisterDto.UniversityCode, getRegisterDto.UniversityName);
-                if (universityEntity is null)
-                {
-                    var university = new University
-                    {/* Guid = new Guid(),*/
-                        Code = getRegisterDto.UniversityCode,
-                        Name = getRegisterDto.UniversityName
-                    };
-                    universityEntity = _universityRepository.Create(university);
-                }
-                
-                  
-                var educationData = new Education
-                {
-                    Guid = employeeData.Guid,
-                    Major = getRegisterDto.Major,
-                    Degree = getRegisterDto.Degree,
-                    Gpa = getRegisterDto.Gpa,
-                    UniversityGuid = universityEntity.Guid
-                };
-                var createdEducation = _educationRepository.Create(educationData);
-                
-
-                var account = new Account
-                {
-                    Guid = employeeData.Guid,
-                    Password = Hashing.HashPassword(getRegisterDto.Password),
-                };
-                var createdAccount = _accountRepository.Create(account);
-
-
-                var toDto = new GetRegisterDto
-                {
-                    FirstName = createdEmployee.FirstName,
-                    LastName = createdEmployee.LastName,
-                    BirthDate = createdEmployee.BirthDate,
-                    Gender = createdEmployee.Gender,
-                    HiringDate = createdEmployee.HiringDate,
-                    Email = createdEmployee.Email,
-                    PhoneNumber = createdEmployee.PhoneNumber,
-                    Password = createdAccount.Password,
-                    ConfirmPassword = getRegisterDto.ConfirmPassword,
-                    Major = createdEducation.Major,
-                    Degree = createdEducation.Degree,
-                    Gpa = createdEducation.Gpa,
-                    UniversityCode = universityEntity.Code,
-                    UniversityName = universityEntity.Name
-                };
-
-                transaction.Commit();
-                return toDto;
-            }
-            catch
-            {
-                transaction.Rollback();
-                return null;
-            }
-        }
-
-        /*   
-        * <summary>
-        * Method GetRegisterDto bertujuan untuk mendaftarkan akun baru dengan menggunakan data yang diberikan dalam objek GetRegisterDto. Data tersebut digunakan untuk membuat dan menyimpan objek Employee, University, Education, dan Account ke dalam repository yang sesuai.
-        */
-
-
-        public int ChangePassword(ChangePasswordDto changePasswordDto)
-        {
-            var changePassword = _employeeRepository.CheckEmail(changePasswordDto.Email);
-            if (changePassword is null)
-            {
-                return 0;
-            }
-
-            var getAccount = _accountRepository.GetByGuid(changePassword.Guid);
-            if (getAccount.Otp != changePasswordDto.Otp)
-            {
-                return -1;
-            }
-
-            if (getAccount.IsUsed == true)
-            {
-                return -2;
-            }
-
-            if (getAccount.ExpiredTime < DateTime.Now)
-            {
-                return -3;
-            }
-
-            var accountNewPassword = new Account
-            {
-
-                Guid = getAccount.Guid,
-                Password = Hashing.HashPassword(changePasswordDto.NewPassword),
-                IsDeleted = getAccount.IsDeleted,
-                Otp = getAccount.Otp,
-                IsUsed = getAccount.IsUsed,
-                ExpiredTime = getAccount.ExpiredTime,
-                ModifiedDate = DateTime.Now,
-                CreatedDate = getAccount!.CreatedDate
-            };
-
-            var isUpdate = _accountRepository.Update(accountNewPassword);
-            if (!isUpdate)
-            {
-                return -4;
-            }
-
-            return 1;
-        }
-
-
-        public int ForgotPassword(ForgotPasswordDto forgotPasswordDto)
-        {
-            var emailValidation = _employeeRepository.CheckEmail(forgotPasswordDto.Email);
-            if (emailValidation == null)
-            {
-                return 0;
-            }
-
-
-            var getAccount = _accountRepository.GetByGuid(emailValidation.Guid);
-
-
-            int generateOtp = int.Parse(new string(Enumerable.Range(1, 6).Select(i => $"{RandomNumberGenerator.GetInt32(0, 10)}"[0]).ToArray()));
-
-
-            var updateAccountDto = new Account
-            {
-                Guid = emailValidation.Guid,
-                Password = getAccount.Password,
-                IsDeleted = getAccount.IsDeleted,
-                Otp = generateOtp,
-                IsUsed = false,
-                ExpiredTime = DateTime.Now.AddMinutes(5)
-            };
-            
-            var updateResult = _accountRepository.Update(updateAccountDto);
-            if (!updateResult)
-            {
-                return -1;
-            }
-
-            var client = emailValidation.FirstName;
-            _emailHandler.SendEmail(forgotPasswordDto.Email, "Forgot Password", $"Hello {client}, Your OTP code is {generateOtp}");
-
-
-            return 1;
-        }
-
-
         public int UpdateAccount(UpdateAccountDto updateAccountDto)
         {
             var isExist = _accountRepository.IsExist(updateAccountDto.Guid);
@@ -464,3 +410,9 @@ namespace API.Services
         }
     }
 }
+
+
+/** < summary >
+*Kelas AccountService merupakan layanan atau service untuk melakukan operasi terkait akun. Kelas tersebut memiliki beberapa dependency yang diinject melalui konstruktor, yaitu IAccountRepository, IEmployeeRepository, IUniversityRepository, dan IEducationRepository.
+* Method GetRegisterDto bertujuan untuk mendaftarkan akun baru dengan menggunakan data yang diberikan dalam objek GetRegisterDto. Data tersebut digunakan untuk membuat dan menyimpan objek Employee, University, Education, dan Account ke dalam repository yang sesuai.
+*/
