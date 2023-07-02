@@ -1,20 +1,87 @@
 ﻿using API.Contracts;
+using API.Data;
 using API.DTOs.Employee;
 using API.DTOs.Universities;
 using API.Models;
 using API.Repositories;
 using API.Utilities.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services
 {
     public class EmployeeService
     {
-
         private readonly IEmployeeRepository _employeeRepository;
-        public EmployeeService(IEmployeeRepository employeeRepository)
+        private readonly IUniversityRepository _universityRepository;
+        private readonly IEducationRepository _educationRepository;
+
+        public EmployeeService(IEmployeeRepository employeeRepository,
+                IUniversityRepository universityRepository,
+                IEducationRepository educationRepository)
         {
             _employeeRepository = employeeRepository;
+            _universityRepository = universityRepository;
+            _educationRepository = educationRepository;
         }
+
+
+        public IEnumerable<EmployeeMasterDto>? GetAllMaster()
+        {
+
+            var master = (
+                from employee in _employeeRepository.GetAll()
+                join education in _educationRepository.GetAll() on employee.Guid equals education.Guid
+                join university in _universityRepository.GetAll() on education.UniversityGuid equals university.Guid
+                select new 
+                {
+                    EmployeeGuid = employee.Guid,
+                    FullName = employee.FirstName + " " + employee.LastName,
+                    Nik = employee.Nik,
+                    BirthDate = employee.BirthDate,
+                    Email = employee.Email,
+                    Gender = employee.Gender,
+                    HiringDate = employee.HiringDate,
+                    PhoneNumber = employee.PhoneNumber,
+                    Major = education.Major,
+                    Degree = education.Degree,
+                    Gpa = education.Gpa,
+                    UniversityName = university.Name,
+                }).ToList();
+
+            if (!master.Any())
+            {
+                return null;
+            }
+
+            var toDto = master.Select(master => new EmployeeMasterDto
+            {
+                EmployeeGuid = master.EmployeeGuid,
+                FullName = master.FullName,
+                Nik = master.Nik,
+                BirthDate = master.BirthDate,
+                Email = master.Email,
+                Gender = master.Gender,
+                HiringDate = master.HiringDate,
+                PhoneNumber = master.PhoneNumber,
+                Major = master.Major,
+                Degree = master.Degree,
+                Gpa = master.Gpa,
+                UniversityName = master.UniversityName,
+            });
+
+            return toDto;
+        }
+
+
+        public EmployeeMasterDto? GetMasterByGuid(Guid guid)
+        {
+            var master = GetAllMaster();
+
+            var masterByGuid = master.FirstOrDefault(master => master.EmployeeGuid == guid);
+
+            return masterByGuid;
+        }
+
 
         public string GenerateNIK()
         {
