@@ -15,5 +15,7 @@ namespace API.DTOs.Account
         public int Otp { get; set; }
         [Required]
         public bool IsUsed { get; set; }
+        [Required]
+        public DateTime ExpiredTime { get; set; }
     }
 }
