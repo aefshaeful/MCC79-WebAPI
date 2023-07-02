@@ -157,5 +157,30 @@ namespace API.Controllers
                 Message = "Successfully Deleted"
             });
         }
+
+
+        [HttpGet("unused-roomstoday")]
+        public IActionResult UnusedRoomToday()
+        {
+            var unUsedRooms = _service.GetUnusedRoom();
+
+            if (unUsedRooms.Count() == 0)
+            {
+                return NotFound(new ResponseHandler<IEnumerable<UnusedRoomTodayDto>>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Rooms Full"
+                });
+            }
+
+            return Ok(new ResponseHandler<IEnumerable<UnusedRoomTodayDto>>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Data Found",
+                Data = unUsedRooms
+            });
+        }
     }
 }
