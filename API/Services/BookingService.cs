@@ -18,6 +18,51 @@ namespace API.Services
             _employeeRepository = employeeRepository;
         }
 
+
+        public IEnumerable<BookingDetailDto>? BookingsDetail()
+        {
+            var bookingsDetail = _bookingRepository.GetAll();
+
+            if (bookingsDetail == null)
+            {
+                return null;
+            }
+
+            var employeesDetail = _employeeRepository.GetAll();
+            var rooms = _roomRepository.GetAll();
+
+            var detailBookings = (from booking in bookingsDetail
+                                  join employee in employeesDetail on booking.EmployeeGuid equals employee.Guid
+                                  join room in rooms on booking.RoomGuid equals room.Guid
+                                  select new BookingDetailDto
+                                  {
+                                      Guid = booking.Guid,
+                                      BookedNik = employee.Nik,
+                                      BookedBy = employee.FirstName + "" + employee.LastName,
+                                      StartDate = DateTime.Now,
+                                      EndDate = booking.EndDate,
+                                      RoomName = room.Name,
+                                      Status = booking.Status,
+                                  }).ToList();
+            if (!detailBookings.Any())
+            {
+                return null;
+            }
+
+            return detailBookings;
+        }
+
+       
+        public BookingDetailDto? BookingDetailByGuid(Guid guid)
+        {
+            var booking = BookingsDetail();
+
+            var bookingByGuid = booking!.FirstOrDefault(booking => booking.Guid == guid);
+
+            return bookingByGuid;
+        }
+
+
         public IEnumerable<GetBookingDto>? GetBooking()
         {
             var bookings = _bookingRepository.GetAll();

@@ -20,6 +20,57 @@ namespace API.Controllers
         }
 
 
+        [HttpGet("booking-detail")]
+        public IActionResult GetBookingDetail()
+        {
+            var bookingDetails = _service.BookingsDetail();
+
+            if (bookingDetails == null)
+            {
+                return NotFound(new ResponseHandler<BookingDetailDto>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found"
+                });
+            }
+
+            return Ok(new ResponseHandler<IEnumerable<BookingDetailDto>>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Data Found",
+                Data = bookingDetails
+            });
+        }
+
+
+        [HttpGet("getbooking-detail/{guid}")]
+        public IActionResult GetBookingDetailByGuid(Guid guid)
+        {
+            var booking = _service.BookingDetailByGuid(guid);
+
+            if (booking is null)
+            {
+                return NotFound(new ResponseHandler<BookingDetailDto>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Guid Not Found!"
+                });
+            }
+            return Ok(new ResponseHandler<BookingDetailDto>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Guid Found",
+                Data = booking
+            });
+        }
+
+
+
+
         [HttpGet]
         public IActionResult GetAll()
         {
