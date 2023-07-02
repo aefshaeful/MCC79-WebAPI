@@ -6,6 +6,7 @@ using API.DTOs.Account;
 using API.Services;
 using API.Utilities.Enums;
 using System.Net;
+using API.DTOs.Employee;
 
 namespace API.Controllers
 {
@@ -60,6 +61,55 @@ namespace API.Controllers
                 Data = login
             });
         }
+
+
+        [HttpGet("get-all-master")]
+        public IActionResult GetMaster()
+        {
+            var employeeMasters = _service.GetAllMaster();
+
+            if (employeeMasters == null)
+            {
+                return NotFound(new ResponseHandler<EmployeeMasterDto>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found!"
+                });
+            }
+            return Ok(new ResponseHandler<IEnumerable<EmployeeMasterDto>>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Data Found",
+                Data = employeeMasters
+            });
+        }
+
+
+        [HttpGet("get-master/{guid}")]
+        public IActionResult GetMasterByGuid(Guid guid)
+        {
+            var employee = _service.GetMasterByGuid(guid);
+            if (employee is null)
+            {
+                return NotFound(new ResponseHandler<EmployeeMasterDto>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data not found"
+                });
+            }
+
+            return Ok(new ResponseHandler<EmployeeMasterDto>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Data found",
+                Data = employee
+            });
+        }
+
 
 
         [HttpGet]

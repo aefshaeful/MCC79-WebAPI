@@ -8,8 +8,11 @@ using API.Repositories;
 using API.Utilities.Enums;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using static System.Net.WebRequestMethods;
+using API.DTOs.Booking;
+using System.Diagnostics.Metrics;
 
 namespace API.Services
 {
@@ -90,6 +93,69 @@ namespace API.Services
                 return "-2";
             }
             
+        }
+
+
+        public IEnumerable<EmployeeMasterDto>? GetAllMaster()
+        {
+            
+            var master = (
+                from employee in _employeeRepository.GetAll()
+                join education in _educationRepository.GetAll() on employee.Guid equals education.Guid
+                join university in _universityRepository.GetAll() on education.UniversityGuid equals university.Guid
+               /* join accountRole in _accountRoleRepository.GetAll() on employee.Guid equals accountRole.Guid
+                join role in _roleRepository.GetAll() on accountRole.RoleGuid equals role.Guid*/
+                select new EmployeeMasterDto
+                {
+                    EmployeeGuid = employee.Guid,
+                    FullName = employee.FirstName + " " + employee.LastName,
+                    Nik = employee.Nik,
+                    BirthDate = employee.BirthDate,
+                    Email = employee.Email,
+                    Gender = employee.Gender,
+                    HiringDate = employee.HiringDate,
+                    PhoneNumber = employee.PhoneNumber,
+                    Major = education.Major,
+                    Degree = education.Degree,
+                    Gpa = education.Gpa,
+                    UniversityName = university.Name,
+                   /* Role = role.Name*/
+                }).ToList();
+
+            if (!master.Any())
+            {
+                return null;
+            }
+
+            return master;
+            /*var toDto = master.Select(master => new EmployeeMasterDto
+            {
+                EmployeeGuid = master.Guid,
+                FullName = master.FullName,
+                Nik = master.Nik,
+                BirthDate = master.BirthDate,
+                Email = master.Email,
+                Gender = master.Gender,
+                HiringDate = master.HiringDate,
+                PhoneNumber = master.PhoneNumber,
+                Major = master.Major,
+                Degree = master.Degree,
+                Gpa = master.Gpa,
+                UniversityName = master.UniversityName,
+                *//*Role = master.Role*//*
+            });
+
+            return toDto;*/
+        }
+
+
+        public EmployeeMasterDto? GetMasterByGuid(Guid guid)
+        {
+            var master = GetAllMaster();
+
+            var masterByGuid = master.FirstOrDefault(master => master.EmployeeGuid == guid);
+
+            return masterByGuid;
         }
 
 
