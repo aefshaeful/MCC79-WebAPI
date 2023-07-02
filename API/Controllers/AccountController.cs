@@ -7,12 +7,13 @@ using API.Services;
 using API.Utilities.Enums;
 using System.Net;
 using API.DTOs.Employee;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
     [ApiController]
     [Route("api/account")]
-
+    [Authorize(Roles = $"{nameof(RoleLevel.Admin)}")]
     public class AccountController : ControllerBase
     {
         private readonly AccountService _service;
@@ -22,7 +23,34 @@ namespace API.Controllers
         }
 
 
+        [Route("register")]
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult RegisterAccount(GetRegisterDto getRegisterDto)
+        {
+            var createdRegister = _service.RegisterAccount(getRegisterDto);
+            if (createdRegister == null)
+            {
+                return BadRequest(new ResponseHandler<GetRegisterDto>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Register failed"
+                });
+            }
+
+            return Ok(new ResponseHandler<GetRegisterDto>
+            {
+                Code = StatusCodes.Status200OK,
+                Status = HttpStatusCode.OK.ToString(),
+                Message = "Successfully register",
+                Data = createdRegister
+            });
+        }
+
+
         [HttpPost("login")]
+        [AllowAnonymous]
         public IActionResult LoginRequest(LoginDto loginDto)
         {
             var login = _service.LoginAccount(loginDto);
@@ -63,53 +91,104 @@ namespace API.Controllers
         }
 
 
-        [HttpGet("get-all-master")]
-        public IActionResult GetMaster()
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword(ForgotPasswordDto forgotPasswordDto)
         {
-            var employeeMasters = _service.GetAllMaster();
+            var forgotPassword = _service.ForgotPassword(forgotPasswordDto);
 
-            if (employeeMasters == null)
+            if (forgotPassword is 0)
             {
-                return NotFound(new ResponseHandler<EmployeeMasterDto>
+                return NotFound(new ResponseHandler<ForgotPasswordDto>
                 {
                     Code = StatusCodes.Status404NotFound,
                     Status = HttpStatusCode.NotFound.ToString(),
-                    Message = "Data Not Found!"
+                    Message = "Email Not Found!"
                 });
             }
-            return Ok(new ResponseHandler<IEnumerable<EmployeeMasterDto>>
+
+            if (forgotPassword is -1)
+            {
+                return BadRequest(new ResponseHandler<ForgotPasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Forgot Password Process Failed"
+                });
+            }
+
+            return Ok(new ResponseHandler<ForgotPasswordDto>
             {
                 Code = StatusCodes.Status200OK,
-                Status = HttpStatusCode.OK.ToString(),
-                Message = "Data Found",
-                Data = employeeMasters
+                Status = HttpStatusCode.Accepted.ToString(),
+                Message = "Otp Has Been Sent to Your Email"
             });
         }
 
 
-        [HttpGet("get-master/{guid}")]
-        public IActionResult GetMasterByGuid(Guid guid)
+        [HttpPut("change-password")]
+        [AllowAnonymous]
+        public IActionResult Update(ChangePasswordDto changePasswordDto)
         {
-            var employee = _service.GetMasterByGuid(guid);
-            if (employee is null)
+            var updatedPassword = _service.ChangePassword(changePasswordDto);
+
+            if (updatedPassword is 0)
             {
-                return NotFound(new ResponseHandler<EmployeeMasterDto>
+                return NotFound(new ResponseHandler<ChangePasswordDto>
                 {
                     Code = StatusCodes.Status404NotFound,
                     Status = HttpStatusCode.NotFound.ToString(),
-                    Message = "Data not found"
+                    Message = "Email Not Found!"
                 });
             }
 
-            return Ok(new ResponseHandler<EmployeeMasterDto>
+            if (updatedPassword is -1)
+            {
+                return BadRequest(new ResponseHandler<ChangePasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Otp Don't Match"
+                });
+            }
+
+            if (updatedPassword is -2)
+            {
+                return BadRequest(new ResponseHandler<ChangePasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Otp has been used"
+                });
+            }
+
+            if (updatedPassword is -3)
+            {
+                return BadRequest(new ResponseHandler<ChangePasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Otp is Expired"
+                });
+            }
+
+            if (updatedPassword is -4)
+            {
+                return BadRequest(new ResponseHandler<ChangePasswordDto>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Status = HttpStatusCode.InternalServerError.ToString(),
+                    Message = "Change Password Failed"
+                });
+            }
+
+            return Ok(new ResponseHandler<ChangePasswordDto>
             {
                 Code = StatusCodes.Status200OK,
-                Status = HttpStatusCode.OK.ToString(),
-                Message = "Data found",
-                Data = employee
+                Status = HttpStatusCode.Accepted.ToString(),
+                Message = "Change Password Successfully"
             });
         }
-
 
 
         [HttpGet]
@@ -184,31 +263,6 @@ namespace API.Controllers
         }
 
 
-        [Route("register")]
-        [HttpPost]
-        public IActionResult RegisterAccount(GetRegisterDto getRegisterDto)
-        {
-            var createdRegister = _service.RegisterAccount(getRegisterDto);
-            if (createdRegister == null)
-            {
-                return BadRequest(new ResponseHandler<GetRegisterDto>
-                {
-                    Code = StatusCodes.Status400BadRequest,
-                    Status = HttpStatusCode.BadRequest.ToString(),
-                    Message = "Register failed"
-                });
-            }
-
-            return Ok(new ResponseHandler<GetRegisterDto>
-            {
-                Code = StatusCodes.Status200OK,
-                Status = HttpStatusCode.OK.ToString(),
-                Message = "Successfully register",
-                Data = createdRegister
-            });
-        }
-
-
         [HttpPut]
         public IActionResult Update(UpdateAccountDto updateAccountDto)
         {
@@ -238,104 +292,6 @@ namespace API.Controllers
                 Code = StatusCodes.Status200OK,
                 Status = HttpStatusCode.Accepted.ToString(),
                 Message = "Data Accepted"
-            });
-        }
-
-
-        [HttpPut("change-password")]
-        public IActionResult Update(ChangePasswordDto changePasswordDto)
-        {
-            var updatedPassword = _service.ChangePassword(changePasswordDto);
-
-            if (updatedPassword is 0)
-            {
-                return NotFound(new ResponseHandler<ChangePasswordDto>
-                {
-                    Code = StatusCodes.Status404NotFound,
-                    Status = HttpStatusCode.NotFound.ToString(),
-                    Message = "Email Not Found!"
-                });
-            }
-
-            if (updatedPassword is -1)
-            {
-                return BadRequest(new ResponseHandler<ChangePasswordDto>
-                {
-                    Code = StatusCodes.Status500InternalServerError,
-                    Status = HttpStatusCode.InternalServerError.ToString(),
-                    Message = "Otp Don't Match"
-                });
-            }
-
-            if (updatedPassword is -2)
-            {
-                return BadRequest(new ResponseHandler<ChangePasswordDto>
-                {
-                    Code = StatusCodes.Status500InternalServerError,
-                    Status = HttpStatusCode.InternalServerError.ToString(),
-                    Message = "Otp has been used"
-                });
-            }
-
-            if (updatedPassword is -3)
-            {
-                return BadRequest(new ResponseHandler<ChangePasswordDto>
-                {
-                    Code = StatusCodes.Status500InternalServerError,
-                    Status = HttpStatusCode.InternalServerError.ToString(),
-                    Message = "Otp is Expired"
-                });
-            }
-
-            if (updatedPassword is -4)
-            {
-                return BadRequest(new ResponseHandler<ChangePasswordDto>
-                {
-                    Code = StatusCodes.Status500InternalServerError,
-                    Status = HttpStatusCode.InternalServerError.ToString(),
-                    Message = "Change Password Failed"
-                });
-            }
-
-            return Ok(new ResponseHandler<ChangePasswordDto>
-            {
-                Code = StatusCodes.Status200OK,
-                Status = HttpStatusCode.Accepted.ToString(),
-                Message = "Change Password Successfully"
-            });
-        }
-
-
-        [HttpPost("forgot-password")]
-        public IActionResult ForgotPassword(ForgotPasswordDto forgotPasswordDto)
-        {
-            var forgotPassword = _service.ForgotPassword(forgotPasswordDto);
-
-            if (forgotPassword is 0)
-            {
-                return NotFound(new ResponseHandler<ForgotPasswordDto>
-                {
-                    Code = StatusCodes.Status404NotFound,
-                    Status = HttpStatusCode.NotFound.ToString(),
-                    Message = "Email Not Found!"
-                });
-            }
-
-            if (forgotPassword is -1)
-            {
-                return BadRequest(new ResponseHandler<ForgotPasswordDto>
-                {
-                    Code = StatusCodes.Status500InternalServerError,
-                    Status = HttpStatusCode.InternalServerError.ToString(),
-                    Message = "Forgot Password Process Failed"
-                });
-            }
-
-            return Ok(new ResponseHandler<ForgotPasswordDto>
-            {
-                Code = StatusCodes.Status200OK,
-                Status = HttpStatusCode.Accepted.ToString(),
-                Message = "Otp Has Been Sent to Your Email"
             });
         }
 

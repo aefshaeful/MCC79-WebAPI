@@ -6,11 +6,13 @@ using API.Contracts;
 using System.Net;
 using API.Services;
 using API.DTOs.Universities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
     [ApiController]
     [Route("api/universities")]
+    [Authorize(Roles = $"{nameof(RoleLevel.Admin)}")]
     public class UniversityController : ControllerBase
     {
         private readonly UniversityService _service;
