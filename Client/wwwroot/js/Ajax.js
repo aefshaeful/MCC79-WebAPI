@@ -1,4 +1,4 @@
-﻿$.ajax({
+﻿/*$.ajax({
     url: "https://pokeapi.co/api/v2/pokemon"
 }).done((result) => {
     let temp = "";
@@ -10,7 +10,7 @@
                 </tr>`;
     })
     $("#tbodySW").html(temp);
-});
+});*/
 
 
 function detail(stringURL) {
@@ -38,3 +38,56 @@ function detail(stringURL) {
         console.log(res);
     })
 };
+
+
+$(document).ready(function () {
+    $('#myTable').DataTable({
+        ajax: {
+            url: "https://pokeapi.co/api/v2/pokemon/?limit=50",
+            dataType: "JSON",
+            dataSrc: "results" //data source -> butuh array of object
+        },
+        columns: [
+            {
+                data: 'url',
+                render: function (data, type, row) {
+                    let number = data.split('/')[6]
+                    return number;
+                }
+            },
+            { data: "name" },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    return `<button onclick="detail('${data.url}')" data-bs-toggle="modal" data-bs-target="#modalPokemon" class="btn btn-primary">Detail</button>`
+                }
+            }
+        ]
+
+    });
+});
+
+
+/*{
+    $('#myTable').DataTable({
+        ajax: {
+            url: "https://pokeapi.co/api/v2/pokemon",
+            dataType: "JSON",
+            dataSrc: "results" //data source -> butuh array of object
+        },
+        columns: [
+            {
+                data: 'no',
+                render: function (data, type, row, meta) {
+                    return meta.row + 1;
+                }
+            },
+            {
+                data: 'action',
+                render: function (data, type, row) {
+                    return `<button onclick="detail('${data.url}')" data-bs-toggle="modal" data-bs-target="#modalPokemon" class="btn btn-primary">Detail</button>`;
+                }
+            }
+        ]
+    });
+});*/
