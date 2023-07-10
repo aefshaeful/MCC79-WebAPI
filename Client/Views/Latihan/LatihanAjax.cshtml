@@ -1,0 +1,112 @@
+﻿@{
+    Layout = "_LayoutAjax";
+}
+
+<div class="table">
+    <div class="header">
+        <img src="https://www.transparentpng.com/thumb/pokemon/JGyfIw-pokemon-logo-png.png" alt="Pokemon Logo Png">
+        <h1 id="judul">Pokemon List</h1>
+    </div>
+    <div class="table_section">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbodySW">
+            </tbody>
+        </table>
+    </div>
+    <div class="footer"></div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalPokemon" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-backgroud">
+                    <img src="~/images/pokeball.png">
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col align-self-start">
+                            <h1 class ="modal-title" id="exampleModalLabel"></h1>
+                            <ul class="nav nav-tabs" id="myTabs">
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab1" data-bs-toggle="tab" href="#content1"><b>Stats</b></a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <div id="content1" class="tab-pane fade">
+                                    <h3 class="mt-2">Statistik</h3>
+                                    <div class="progress">
+                                        <div class="progress-bar rounded bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" id="hp">HP</div>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar rounded bg-danger progress-bar-striped progress-bar-animated" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" id="attack">Attack</div>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar rounded bg-info progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" id="defense">Defense</div>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar rounded bg-danger progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" id="sattack">Spesial Attack</div>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar rounded bg-info progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" id="sdefense">Spesial Defense</div>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar rounded bg-warning progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" id="speed">Speed</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col align-self-center">
+                            <img src="" alt="Pokemon Png" id="imagePokemon">
+                        </div>
+                        <div class="col align-self-end">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Height
+                                    <span class="badge bg-primary rounded-pill" id="height"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Weight
+                                    <span class="badge bg-primary rounded-pill" id="weight"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Base Experience
+                                    <span class="badge bg-primary rounded-pill" id="experience"></span>
+                                </li>
+                                @*<li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Abilities
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                            <li><a class="dropdown-item" href="#" id="abilities"></a></li>
+                                            <li><a class="dropdown-item" href="#" id="abilities"></a></li>
+                                            <li><a class="dropdown-item" href="#" id="abilities"></a></li>
+                                        </ul>
+                                    </div>
+                                </li>*@
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center" id="types"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
